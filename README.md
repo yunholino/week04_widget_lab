@@ -10,9 +10,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '상품 상세 및 리뷰',
+      title: '상품 상세 화면',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const ProductDetailPage(),
@@ -28,18 +28,17 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  // 화면 동작(State) 변수
+  // 상태 관리 변수
   bool _isLiked = false;
   int _quantity = 1;
-  final int _unitPrice = 15000;
+  final int _unitPrice = 25000;
 
-  // 리뷰 데이터
+  // 리뷰 목록 데이터
   final List<String> _reviews = [
-    '배송이 빠르고 상품 품질이 아주 좋습니다!',
-    '생각했던 것보다 색상이 예쁘네요.',
-    '가성비 최고입니다. 재구매 의사 있어요.',
-    '마감이 아주 깔끔합니다. 추천해요!',
-    '친구 선물용으로 샀는데 만족합니다.',
+    '배송이 빠르고 착용감이 좋습니다.',
+    '실물 색상이 더 예쁘네요.',
+    '가성비 대비 만족스럽습니다.',
+    '재구매 의사 있습니다!',
   ];
 
   void _toggleLike() {
@@ -64,86 +63,95 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Scaffold & AppBar: 기본 화면 틀 구성
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상품 정보'),
+        title: const Text('상품 상세 정보'),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      // 2. Column: 화면 전체 요소를 세로로 배치
       body: Column(
         children: [
-          // 상품 정보 상단 영역 (Row, Text, Icon 사용)
+          // 3. Image: 상품 이미지 표시 (네트워크 이미지)
+          Image.network(
+            'https://picsum.photos/id/1062/600/300',
+            height: 180,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 180,
+                color: Colors.grey[300],
+                child: const Center(child: Text('이미지를 불러올 수 없습니다.')),
+              );
+            },
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 4. Row: 상품명과 좋아요 버튼을 가로로 배치
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '프리미엄 무선 헤드폰',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: _isLiked ? Colors.red : Colors.grey,
-                          ),
-                          onPressed: _toggleLike,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '가격: ${(_unitPrice * _quantity).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.indigo,
-                        fontWeight: FontWeight.w600,
+                    // 5. Text: 상품명 표시
+                    const Text(
+                      '스마트 워치 밴드',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    // 수량 조절 버튼 영역 (ElevatedButton 사용)
-                    Row(
-                      children: [
-                        const Text('수량: ', style: TextStyle(fontSize: 16)),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: _decrementQuantity,
-                        ),
-                        Text(
-                          '$_quantity',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: _incrementQuantity,
-                        ),
-                        const Spacer(),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('$_quantity개 구매 신청이 완료되었습니다.'),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.shopping_cart),
-                          label: const Text('구매하기'),
-                        ),
-                      ],
+                    // 6. Icon & IconButton: 좋아요 버튼 동작
+                    IconButton(
+                      icon: Icon(
+                        _isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: _isLiked ? Colors.red : Colors.grey,
+                        size: 28,
+                      ),
+                      onPressed: _toggleLike,
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 8),
+                // Text: 수량 변경에 따른 실시간 총 가격 표시
+                Text(
+                  '가격: ${(_unitPrice * _quantity).toString()}원',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Row: 수량 조절 버튼 및 구매 버튼 배치
+                Row(
+                  children: [
+                    const Text('수량: ', style: TextStyle(fontSize: 16)),
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: _decrementQuantity,
+                    ),
+                    Text('$_quantity', style: const TextStyle(fontSize: 16)),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: _incrementQuantity,
+                    ),
+                    const Spacer(),
+                    // ElevatedButton: 클릭 시 실행 결과(SnackBar) 표시
+                    ElevatedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('총 $_quantity개 구매 완료되었습니다.')),
+                        );
+                      },
+                      child: const Text('구매하기'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           const Divider(),
@@ -152,20 +160,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                '구매 후기',
+                '상품 후기',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          // 리뷰 목록 (ListView 사용)
+          // 7. ListView: 스크롤 가능한 리뷰 목록 배치
           Expanded(
             child: ListView.builder(
               itemCount: _reviews.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: const Icon(Icons.comment),
+                  leading: const Icon(Icons.rate_review),
                   title: Text(_reviews[index]),
-                  subtitle: Text('작성자 user0${index + 1}'),
+                  subtitle: Text('작성자: user0${index + 1}'),
                 );
               },
             ),
